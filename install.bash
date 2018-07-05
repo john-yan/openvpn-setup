@@ -7,13 +7,13 @@ EASYRSA_DIR=$CWD/EasyRSA-3.0.4
 
 easyrsa=$EASYRSA_DIR/easyrsa
 
-SERVER_CONF_FILES= \
+SERVER_CONF_FILES="\
   $SERVER_DIR/pki/private/server.key \
   $SERVER_DIR/ta.key \
   $SERVER_DIR/pki/dh.pem \
   $CA_DIR/pki/issued/server.crt \
   $CA_DIR/pki/ca.crt \
-  $CWD/server.conf
+  $CWD/server.conf"
 
 # install all updates
 apt update -y && apt dist-upgrade -y
@@ -74,6 +74,7 @@ ufw allow OpenSSH
 ufw disable
 ufw enable
 systemctl start openvpn@server
+sleep 3
 systemctl status openvpn@server
 ip addr show tun0
 systemctl enable openvpn@server
