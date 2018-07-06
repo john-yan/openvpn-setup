@@ -80,7 +80,7 @@ systemctl start openvpn@server
 systemctl enable openvpn@server
 sleep 3
 ip addr show tun0
-systemctl status openvpn@server
+systemctl --no-pager status openvpn@server
 
 
 
