@@ -31,25 +31,26 @@ wget -O - https://github.com/OpenVPN/easy-rsa/releases/download/v3.0.4/EasyRSA-3
 # create ROOT dirs
 mkdir -p $CA_DIR
 mkdir -p $SERVER_DIR
+mkdir -p $CLIENT_DIR
 
 # generate ta.key
 openvpn --genkey --secret $CWD/ta.key
 
 # generate server key and Diffie-Hellman key
 cd $SERVER_DIR
-cp $CWD/vars ./vars
+cat $CWD/vars <(echo -e 'set_var EASYRSA_REQ_CN         "Server"') > ./vars
 $easyrsa --batch init-pki
 $easyrsa --batch gen-req server nopass
 $easyrsa --batch gen-dh
 
 # init client
 cd $CLIENT_DIR
-cp $CWD/vars ./vars
+cat $CWD/vars <(echo -e 'set_var EASYRSA_REQ_CN         "Client"') > ./vars
 $easyrsa --batch init-pki
 
 # generate CA and sign the keys
 cd $CA_DIR
-cp $CWD/vars ./vars
+cat $CWD/vars <(echo -e 'set_var EASYRSA_REQ_CN         "CA"') > ./vars
 $easyrsa --batch init-pki
 $easyrsa --batch build-ca nopass
 $easyrsa import-req $SERVER_DIR/pki/reqs/server.req server
