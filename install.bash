@@ -3,13 +3,14 @@
 CWD=$(pwd)
 CA_DIR=$CWD/CA
 SERVER_DIR=$CWD/server
+CLIENT_DIR=$CWD/client
 EASYRSA_DIR=$CWD/EasyRSA-3.0.4
 
 easyrsa=$EASYRSA_DIR/easyrsa
 
 SERVER_CONF_FILES="\
   $SERVER_DIR/pki/private/server.key \
-  $SERVER_DIR/ta.key \
+  $CWD/ta.key \
   $SERVER_DIR/pki/dh.pem \
   $CA_DIR/pki/issued/server.crt \
   $CA_DIR/pki/ca.crt \
@@ -31,15 +32,22 @@ wget -O - https://github.com/OpenVPN/easy-rsa/releases/download/v3.0.4/EasyRSA-3
 mkdir -p $CA_DIR
 mkdir -p $SERVER_DIR
 
+# generate ta.key
+openvpn --genkey --secret $CWD/ta.key
+
 # generate server key and Diffie-Hellman key
 cd $SERVER_DIR
 cp $CWD/vars ./vars
 $easyrsa --batch init-pki
 $easyrsa --batch gen-req server nopass
 $easyrsa --batch gen-dh
-openvpn --genkey --secret ta.key
 
-# generate CA and sign server key
+# init client
+cd $CLIENT_DIR
+cp $CWD/vars ./vars
+$easyrsa --batch init-pki
+
+# generate CA and sign the keys
 cd $CA_DIR
 cp $CWD/vars ./vars
 $easyrsa --batch init-pki
@@ -47,7 +55,7 @@ $easyrsa --batch build-ca nopass
 $easyrsa import-req $SERVER_DIR/pki/reqs/server.req server
 $easyrsa --batch sign-req server server
 
-# install keys, certificates and configuration files
+# install server keys, certificates and configuration files
 cp $SERVER_CONF_FILES /etc/openvpn/
 
 # enable ip forwarding
@@ -81,6 +89,5 @@ systemctl enable openvpn@server
 sleep 3
 ip addr show tun0
 systemctl --no-pager status openvpn@server
-
 
 
