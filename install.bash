@@ -15,6 +15,9 @@ SERVER_CONF_FILES="\
   $CA_DIR/pki/ca.crt \
   $CWD/server.conf"
 
+# disable prompt when install updates
+export DEBIAN_FRONTEND=noninteractive
+
 # install all updates
 apt update -y && apt dist-upgrade -y
 
@@ -66,18 +69,18 @@ COMMIT
 " | cat - /etc/ufw/before.rules > $CWD/before.rules.tmp
 mv $CWD/before.rules.tmp /etc/ufw/before.rules
 
-# accept forwarding
-sed -i 's/^DEFAULT_FORWARD_POLICY.\+/DEFAULT_FORWARD_POLICY="ACCEPT"/' /etc/default/ufw
-
+# configure ufw firewall
+sed -i 's/^DEFAULT_FORWARD_POLICY.\+/DEFAULT_FORWARD_POLICY="ACCEPT"/' /etc/default/ufw  # accept forwarding
 ufw allow 1194/udp
 ufw allow OpenSSH
 ufw disable
-ufw enable
+ufw --force enable
+
 systemctl start openvpn@server
-sleep 3
-systemctl status openvpn@server
-ip addr show tun0
 systemctl enable openvpn@server
+sleep 3
+ip addr show tun0
+systemctl status openvpn@server
 
 
 
