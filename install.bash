@@ -38,21 +38,21 @@ openvpn --genkey --secret $CWD/ta.key
 
 # generate server key and Diffie-Hellman key
 cd $SERVER_DIR
-cat $CWD/vars <(echo -e 'set_var EASYRSA_REQ_CN         "Server"') > ./vars
-$easyrsa --batch init-pki
-$easyrsa --batch gen-req server nopass
-$easyrsa --batch gen-dh
+cp $CWD/vars ./vars
+$easyrsa --batch --req-cn=server init-pki
+$easyrsa --batch --req-cn=server gen-req server nopass
+$easyrsa --batch --req-cn=server gen-dh
 
 # init client
 cd $CLIENT_DIR
-cat $CWD/vars <(echo -e 'set_var EASYRSA_REQ_CN         "Client"') > ./vars
-$easyrsa --batch init-pki
+cp $CWD/vars ./vars
+$easyrsa --batch --req-cn=client init-pki
 
 # generate CA and sign the keys
 cd $CA_DIR
-cat $CWD/vars <(echo -e 'set_var EASYRSA_REQ_CN         "CA"') > ./vars
-$easyrsa --batch init-pki
-$easyrsa --batch build-ca nopass
+cp $CWD/vars ./vars
+$easyrsa --batch --req-cn=ca init-pki
+$easyrsa --batch --req-cn=ca build-ca nopass
 $easyrsa import-req $SERVER_DIR/pki/reqs/server.req server
 $easyrsa --batch sign-req server server
 

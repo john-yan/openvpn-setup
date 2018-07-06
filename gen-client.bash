@@ -13,7 +13,7 @@ CLIENT_NAME=${1}
 
 # generate key and req
 cd $CLIENT_DIR
-$easyrsa --batch gen-req $CLIENT_NAME nopass
+$easyrsa --batch --req-cn="$CLIENT_NAME" gen-req $CLIENT_NAME nopass
 
 # sign client key
 cd $CA_DIR
