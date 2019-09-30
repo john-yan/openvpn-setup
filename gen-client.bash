@@ -4,7 +4,7 @@ CWD=$(pwd)
 CA_DIR=$CWD/CA
 SERVER_DIR=$CWD/server
 CLIENT_DIR=$CWD/client
-EASYRSA_DIR=$CWD/EasyRSA-3.0.4
+EASYRSA_DIR=$CWD/EasyRSA-v3.0.6
 
 easyrsa=$EASYRSA_DIR/easyrsa
 
