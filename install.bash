@@ -4,7 +4,7 @@ CWD=$(pwd)
 CA_DIR=$CWD/CA
 SERVER_DIR=$CWD/server
 CLIENT_DIR=$CWD/client
-EASYRSA_DIR=$CWD/EasyRSA-3.0.4
+EASYRSA_DIR=$CWD/EasyRSA-v3.0.6
 
 easyrsa=$EASYRSA_DIR/easyrsa
 
@@ -26,7 +26,8 @@ apt update -y && apt dist-upgrade -y
 apt install -y openvpn wget git vim
 
 # download EasyRSA and untar
-wget -O - https://github.com/OpenVPN/easy-rsa/releases/download/v3.0.4/EasyRSA-3.0.4.tgz | tar xzv
+LINK=https://github.com/OpenVPN/easy-rsa/releases/download/v3.0.6/EasyRSA-unix-v3.0.6.tgz
+wget -O - $LINK | tar xzv
 
 # create ROOT dirs
 mkdir -p $CA_DIR
@@ -48,11 +49,13 @@ $easyrsa --batch --req-cn=server gen-dh
 cd $CLIENT_DIR
 cp $CWD/vars ./vars
 $easyrsa --batch --req-cn=client init-pki
+dd if=/dev/urandom of=$CLIENT_DIR/pki/.rnd bs=256 count=1
 
 # generate CA and sign the keys
 cd $CA_DIR
 cp $CWD/vars ./vars
 $easyrsa --batch --req-cn=ca init-pki
+dd if=/dev/urandom of=$CA_DIR/pki/.rnd bs=256 count=1
 $easyrsa --batch --req-cn=ca build-ca nopass
 $easyrsa import-req $SERVER_DIR/pki/reqs/server.req server
 $easyrsa --batch sign-req server server
@@ -82,6 +85,7 @@ mv $CWD/before.rules.tmp /etc/ufw/before.rules
 # configure ufw firewall
 sed -i 's/^DEFAULT_FORWARD_POLICY.\+/DEFAULT_FORWARD_POLICY="ACCEPT"/' /etc/default/ufw  # accept forwarding
 ufw allow 1194/udp
+ufw allow 1194/tcp
 ufw allow OpenSSH
 ufw disable
 ufw --force enable
