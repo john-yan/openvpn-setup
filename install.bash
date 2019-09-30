@@ -41,7 +41,7 @@ openvpn --genkey --secret $CWD/ta.key
 cd $SERVER_DIR
 cp $CWD/vars ./vars
 $easyrsa --batch --req-cn=server init-pki
-dd if=/dev/urandom of=$CWD/server/pki/.rnd bs=256 count=1
+dd if=/dev/urandom of=$SERVER_DIR/pki/.rnd bs=256 count=1
 $easyrsa --batch --req-cn=server gen-req server nopass
 $easyrsa --batch --req-cn=server gen-dh
 
